@@ -1,11 +1,8 @@
 #include <iostream>
 
-// 매수 기준 비율
-#define Increase_Rate 1.0
-// 매도 기준 비율
-#define Decrease_Rate 1.0
-// 손실 기준 비율
-#define Loss_Rate 5.0
+#define Increase_Rate 1.0	// 매수 기준 비율
+#define Decrease_Rate 1.0	// 매도 기준 비율
+#define Loss_Rate 5.0		// 손실 기준 비율
 
 using namespace std;
 
