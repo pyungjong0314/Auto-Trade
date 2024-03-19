@@ -1,87 +1,220 @@
 #include <iostream>
+#include <string>
+#include <cpr/cpr.h>
+#include <nlohmann/json.hpp>
 
-#define Increase_Rate 1.0	// ¸Å¼ö ±âÁØ ºñÀ²
-#define Decrease_Rate 1.0	// ¸Åµµ ±âÁØ ºñÀ²
-#define Loss_Rate 5.0		// ¼Õ½Ç ±âÁØ ºñÀ²
+using namespace std;
+using json = nlohmann::json;
+
+
+
+#define Increase_Rate 1.0	// ë§¤ìˆ˜ ê¸°ì¤€ ë¹„ìœ¨
+#define Decrease_Rate 1.0	// ë§¤ë„ ê¸°ì¤€ ë¹„ìœ¨
+#define Loss_Rate 5.0		// ì†ì‹¤ ê¸°ì¤€ ë¹„ìœ¨
 
 using namespace std;
 
-// ºñÆ® ÄÚÀÎ °¡°İ (ÄÚÀÎ Ãß°¡ °¡´É)
-double BTC_Standard_Price;	// ±âÁØ °¡°İ
-double BTC_Current_Price;	// ÇöÀç °¡°İ
-double BTC_Price_Rate;		// ÇöÀç °¡°İ º¯È­ ºñÀ²
-double BTC_Buy_Price;		// ¸Å¼ö °¡°İ
-double BTC_Loss_Rate;		// ÇöÀç ¼Õ½Ç ºñÀ²
-double BTC_Sell_Price;		// ¸Åµµ °¡°İ
+// ë¹„íŠ¸ ì½”ì¸ ê°€ê²© (ì½”ì¸ ì¶”ê°€ ê°€ëŠ¥)
+double BTC_Standard_Price;	// ê¸°ì¤€ ê°€ê²©
+double BTC_Current_Price;	// í˜„ì¬ ê°€ê²©
+double BTC_Price_Rate;		// í˜„ì¬ ê°€ê²© ë³€í™” ë¹„ìœ¨
+double BTC_Buy_Price;		// ë§¤ìˆ˜ ê°€ê²©
+double BTC_Loss_Rate;		// í˜„ì¬ ì†ì‹¤ ë¹„ìœ¨
+double BTC_Sell_Price;		// ë§¤ë„ ê°€ê²©
+double UPBIT_BTC_Price;
 
-// ÄÚÀÎ ¸Å¼ö ÇÔ¼ö (¸Å°Ôº¯¼ö¿¡ ±¸¸ÅÇÒ ÄÚÀÎÀ» ¼±ÅÃÇÏ¸é ÁÁÀ»°Í °°´Ù.)
+// ì½”ì¸ ë§¤ìˆ˜ í•¨ìˆ˜ (ë§¤ê²Œë³€ìˆ˜ì— êµ¬ë§¤í•  ì½”ì¸ì„ ì„ íƒí•˜ë©´ ì¢‹ì„ê²ƒ ê°™ë‹¤.)
 void Buy_Coin();
-// ¸Åµµ°¡ ¿Ï·á µÇ±â Àü±îÁö ´ë±âÇÏ´Â ÇÔ¼ö
+// ë§¤ë„ê°€ ì™„ë£Œ ë˜ê¸° ì „ê¹Œì§€ ëŒ€ê¸°í•˜ëŠ” í•¨ìˆ˜
 void Hold_Coin();
-// ÄÚÀÎ ¸Åµµ ÇÔ¼ö
+// ì½”ì¸ ë§¤ë„ í•¨ìˆ˜
 void Sell_Coin();
 
-int main(void) {
+long double get_binance_price(const std::string& code);
+long double get_upbit_price(const std::string& code);
+long double get_currency(const std::string& code);
 
 
-	while (1) {
-		cin >> BTC_Standard_Price; // ±âÁØ °¡°İ ÃÊ±âÈ­ (¹æ¹ı ¹ÌÁ¤)
-		cin >> BTC_Current_Price; // ÇöÀç °¡°İ
-		// ÄÚÀÎ °¡°İ º¯µ¿ ºñÀ² °è»ê
-		BTC_Price_Rate = (BTC_Current_Price - BTC_Standard_Price) / BTC_Standard_Price * 100;
 
-		// °¡°İ Áõ°¡À²ÀÌ ´õ ³ôÀº °æ¿ì
-		if (BTC_Price_Rate > Increase_Rate) {
-			// Á¶°ÇÀ» ¸¸Á·ÇÏ¸é ÄÚÀÎÀ» ¸Å¼ö
-			Buy_Coin();
-			Hold_Coin();
-		}
 
-	}
+int main() {
+    BTC_Standard_Price = get_binance_price("BTC"); // ê¸°ì¤€ ê°€ê²© ì´ˆê¸°í™” (ë°©ë²• ë¯¸ì •)
+
+    while (1)
+    {
+        BTC_Current_Price = get_binance_price("BTC"); // í˜„ì¬ ê°€ê²©
+        BTC_Price_Rate = ((BTC_Current_Price - BTC_Standard_Price) / BTC_Standard_Price) * 100; // ì½”ì¸ ê°€ê²© ë³€ë™ ë¹„ìœ¨ ê³„ì‚°
+
+        UPBIT_BTC_Price = get_upbit_price("BTC"); // ì—…ë¹„íŠ¸ í˜„ì¬ ê°€ê²© 
+        long double currency = get_currency("USD"); // ë‹¬ëŸ¬ í™˜ìœ¨ ê°€ì ¸ì˜¤ê¸°
+        bool price_diff = (BTC_Current_Price * currency) - UPBIT_BTC_Price; // (ë°”ì´ë‚¸ìŠ¤ - ì—…ë¹„íŠ¸) ì‹œì„¸ì°¨ìµ
+
+        BTC_Standard_Price = BTC_Current_Price; // ê¸°ì¤€ ê°€ê²© ì¬ì§€ì •
+
+
+
+        // (ë°”ì´ë‚¸ìŠ¤ > ê°€ê²©ì¦ê°€ìœ¨) && (ë°”ì´ë‚¸ìŠ¤ > ì—…ë¹„íŠ¸)   ë°”ì´ë‚¸ìŠ¤ì˜ ì‹œì„¸ê°€ ì—…ë¹„íŠ¸ë¥¼ ì¶”ì›”í–ˆìŒìœ¼ë¡œ ë§¤ìˆ˜
+        if (BTC_Price_Rate > Increase_Rate && price_diff > 0) {
+            // ì¡°ê±´ì„ ë§Œì¡±í•˜ë©´ ì½”ì¸ì„ ë§¤ìˆ˜
+            Buy_Coin();
+            Hold_Coin();
+        }
+
+    }
+    return 0;
 }
+
 
 void Buy_Coin() {
-	cout << "Coin ¸Å¼ö" << endl;
+    cout << "Coin ë§¤ìˆ˜" << endl;
 
-	// ÄÚÀÎÀ» ¸Å¼ö ¼º°øÇÑ °¡°İÀ» ÀúÀå
-	BTC_Buy_Price;
+    // UPBIT APIë¥¼ ì´ìš©í•œ ë§¤ìˆ˜
+    // ì½”ì¸ì„ ë§¤ìˆ˜ ì„±ê³µí•œ ê°€ê²©ì„ ì €ì¥
+    BTC_Buy_Price = 0;
 }
 
+
 void Hold_Coin() {
-	while (1) {
-		cin >> BTC_Standard_Price; // ±âÁØ °¡°İ ÃÊ±âÈ­ (¹æ¹ı ¹ÌÁ¤)
-		cin >> BTC_Current_Price; // ÇöÀç °¡°İ
-		// ÄÚÀÎ °¡°İ º¯µ¿ ºñÀ² °è»ê
-		BTC_Price_Rate = (BTC_Standard_Price - BTC_Current_Price) / BTC_Standard_Price * 100;
-		// ÄÚÀÎ ¼Õ½Ç º¯µ¿ ºñÀ² °è»ê
-		BTC_Loss_Rate = (BTC_Buy_Price - BTC_Current_Price) / BTC_Buy_Price * 100;
+    while (1)
+    {
+        // ê¸°ì¤€ ê°€ê²© ì´ˆê¸°í™” (ë°©ë²• ë¯¸ì •), í˜„ì¬ ê°€ê²© ì „ì—­ ë³€ìˆ˜ì— ì €ì¥ë¨
+        BTC_Current_Price = get_binance_price("BTC"); // í˜„ì¬ ê°€ê²©
+        BTC_Price_Rate = ((BTC_Current_Price - BTC_Standard_Price) / BTC_Standard_Price) * 100; // ì½”ì¸ ê°€ê²© ë³€ë™ ë¹„ìœ¨ ê³„ì‚°
 
-		// °¡°İ ÇÏ¶ô·üÀÌ ´õ ³ôÀº °æ¿ì 
-		if (BTC_Price_Rate > Decrease_Rate) {
-			// ÄÚÀÎ ¸Åµµ
-			Sell_Coin();
+        UPBIT_BTC_Price = get_upbit_price("BTC"); // ì—…ë¹„íŠ¸ í˜„ì¬ ê°€ê²© 
+        long double currency = get_currency("USD"); // ë‹¬ëŸ¬ í™˜ìœ¨ ê°€ì ¸ì˜¤ê¸°
+        bool price_diff = (BTC_Current_Price * currency) - UPBIT_BTC_Price; // (ë°”ì´ë‚¸ìŠ¤ - ì—…ë¹„íŠ¸) ì‹œì„¸ì°¨ìµ
 
-			// ÇÔ¼ö Á¾·á
-			break;
-		}
+        BTC_Standard_Price = BTC_Current_Price; // ê¸°ì¤€ ê°€ê²© ì¬ì§€ì •
 
-		// °¡°İ ¼Õ½ÇÀ²ÀÌ ±âÁØ ¼Õ½ÇÀ² º¸´Ù ´õ ³ôÀº °æ¿ì
-		if (BTC_Loss_Rate > Loss_Rate) {
-			// ÄÚÀÎ ¸Åµµ
-			Sell_Coin();
-			
-			// ÇÔ¼ö Á¾·á
-			break;
-		}
-	}
+        BTC_Loss_Rate = (BTC_Buy_Price - BTC_Current_Price) / BTC_Buy_Price * 100;
+
+
+
+        if (BTC_Price_Rate < Decrease_Rate || price_diff < 0) {        // ì½”ì¸ ì†ì‹¤ ë³€ë™ ë¹„ìœ¨ ê³„ì‚°   
+            // - (ë°”ì´ë‚¸ìŠ¤ < ê°ì†Œìœ¨) && (ë°”ì´ë‚¸ìŠ¤ < ì—…ë¹„íŠ¸)  
+            // - (ìŒìˆ˜ì´ë¯€ë¡œ ë” ë‚®ì€ ê°’ì´ í•˜ë½ë¥ ì´ ë†’ìŒ!)
+            // - ì „ì•¡ ë§¤ë„
+            break;
+        }
+    }
 }
 
 void Sell_Coin() {
-	cout << "Coin ¸Åµµ" << endl;
+    cout << "Coin ë§¤ë„" << endl;
 
-	// ÄÚÀÎÀ» ¸Åµµ ¼º°øÇÑ °¡°İÀ» ÀúÀå
-	BTC_Sell_Price;
-	
-	// ¼ÕÀÍ·ü °è»ê
-	cout << "¼ÕÀÍ" << endl;
+    // UPBIT APIë¥¼ ì´ìš©í•œ ë§¤ë„
+    // ì½”ì¸ì„ ë§¤ë„ ì„±ê³µí•œ ê°€ê²©ì„ ì €ì¥
+    BTC_Sell_Price = 0;
+
+    // ì†ìµë¥  ê³„ì‚°
+    cout << "ì†ìµ" << endl;
+}
+
+long double get_binance_price(const std::string& code) {
+    try {
+        // URL for fetching the order book from Binance Exchange (BTC/USDT pair)
+        string url = "https://api.binance.com/api/v3/ticker/price?symbol=" + code + "USDT";
+
+        // Make the HTTP GET request using CPR
+        auto response = cpr::Get(cpr::Url{ url });
+
+        // Check if the request was successful
+        if (response.status_code == 200) {
+            // Parse the response body as JSON
+            json data = json::parse(response.text);
+
+            // Extract price from JSON
+            long double price = stold(data["price"].get<string>());
+
+            // Check if the price retrieval was successful
+            if (price != -1.0) {
+                //cout << "Price of BTCUSDT: " << price << endl;
+            }
+            else {
+                //cout << "Faifled to retrieve price." << endl;
+            }
+
+            return price;
+        }
+        else {
+            // Print error message if request failed
+            cerr << "Error: Failed to fetch price. Status code: " << response.status_code << endl;
+            return -1.0; // Return -1 to indicate failure
+        }
+    }
+    catch (const std::exception& e) {
+        cerr << "Exception: " << e.what() << endl;
+        return -1.0; // Return -1 to indicate failure
+    }
+}
+
+long double get_upbit_price(const std::string& code) {
+    try {
+        // URL for fetching ticker data from Upbit
+        string url = "https://api.upbit.com/v1/ticker?markets=KRW-" + code;
+
+        // Make the HTTP GET request using CPR
+        auto response = cpr::Get(cpr::Url{ url });
+
+        // Check if the request was successful
+        if (response.status_code == 200) {
+            // Parse the response body as JSON
+            json data = json::parse(response.text);
+
+            // Extract price from JSON
+            long double upbit_price = data[0].at("opening_price");
+            std::cout << upbit_price << std::endl;
+
+            // Check if the price retrieval was successful
+            if (upbit_price != -1.0) {
+                //cout << "Price of KRW-" << code << ": " << upbit_price << endl;
+            }
+            else {
+                //cout << "Failed to retrieve price." << endl;
+            }
+
+            return upbit_price;
+        }
+        else {
+            // Print error message if request failed
+            cerr << "Error: Failed to fetch price. Status code: " << response.status_code << endl;
+            return -1.0; // Return -1 to indicate failure
+        }
+    }
+    catch (const std::exception& e) {
+        cerr << "Exception: " << e.what() << endl;
+        return -1.0; // Return -1 to indicate failure
+    }
+}
+
+
+long double get_currency(const std::string& code) {
+    try {
+        // URL for fetching ticker data from Upbit
+        string url = "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRW" + code;
+
+        // Make the HTTP GET request using CPR
+        auto response = cpr::Get(cpr::Url{ url });
+
+        // Check if the request was successful
+        if (response.status_code == 200) {
+            // Parse the response body as JSON
+            json data = json::parse(response.text);
+
+            // Extract price from JSON
+            long double currency = data[0].at("basePrice");
+
+            return currency;
+        }
+        else {
+            // Print error message if request failed
+            cerr << "Error: Failed to fetch currency. Status code: " << response.status_code << endl;
+            return -1.0; // Return -1 to indicate failure
+        }
+    }
+    catch (const std::exception& e) {
+        cerr << "Exception: " << e.what() << endl;
+        return -1.0; // Return -1 to indicate failure
+    }
 }
