@@ -1,6 +1,6 @@
 # Auto-Trade
-[![English](https://img.shields.io/badge/lang-English-blue.svg)](https://github.com/pyungjong0314/Auto-Trade/main/README.md)
-[![한국어](https://img.shields.io/badge/lang-한국어-red.svg)](https://github.com/pyungjong0314/Auto-Trade/main/README.KR.md)
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](https://github.com/pyungjong0314/Auto-Trade/blob/main/README.md)
+[![한국어](https://img.shields.io/badge/lang-한국어-red.svg)](https://github.com/pyungjong0314/Auto-Trade/blob/main/README.KR.md)
 
 This is an auto-trading algorithm writtten in C++.
 Our goal is to profit from BTC price anomaly between Binance and Upbit market.
