@@ -1,3 +1,5 @@
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](https://github.com/pyungjong0314/Auto-Trade/blob/main/README.md)
+
 # 자동거래
 프로젝트는 C++로 자동 거래 알고리즘을 작성하였습니다.
 저희의 목표는 바이낸스와 업비트 시장 간의 BTC 가격 이상 현상에서 이익을 얻는 것입니다.
