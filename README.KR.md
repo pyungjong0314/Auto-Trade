@@ -10,7 +10,7 @@
 따라서 해외와 한국시장 간 시세차익이 있다면 업비트 가격이 균형에 도달하기 위해 변동할 것이고, 이를 통해 수익을 추구할 예정입니다.
 </br>
 
-# 참고문헌
+# 참고자료
 ### 코드 관련
 - **업비트 API 문서** : [여기를 클릭하세요](https://docs.upbit.com/reference/ticker%ED%98%84%EC%9E%AC%EA%B0%80-%EC%A0%95%EB%B3%B4)
 - **바이낸스 API 문서** : [여기를 클릭하세요](https://binance-docs.github.io/apidocs/)
